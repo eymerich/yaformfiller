@@ -41,16 +41,44 @@ async function initBar() {
   const t = (key, args) => (typeof browser !== "undefined" ? browser : chrome).i18n.getMessage(key, args);
   const bar = document.createElement("div");
   bar.id = "yaf-bar";
-  bar.innerHTML = `
-    <div class="bar-row">
-      <b>YaFormFiller</b>${_yafVer ? `<span class="bar-ver">v${_yafVer}</span>` : ""}
-      <select id="yaf-form-select"><option value="">${t("barLoading")}</option></select>
-      <button id="yaf-apply" class="primary">${t("barApply")}</button>
-      <button id="yaf-clear">${t("barClear")}</button>
-      <span id="yaf-status" class="status"></span>
-    </div>
-  `;
+  // Built with DOM APIs, not innerHTML (AMO linter: "Unsafe assignment to innerHTML").
+  const row = document.createElement("div");
+  row.className = "bar-row";
+  const bold = document.createElement("b");
+  bold.textContent = "YaFormFiller";
+  row.append(bold);
+  if (_yafVer) {
+    const ver = document.createElement("span");
+    ver.className = "bar-ver";
+    ver.textContent = `v${_yafVer}`;
+    row.append(ver);
+  }
+  const formSelect = document.createElement("select");
+  formSelect.id = "yaf-form-select";
+  const loadingOpt = document.createElement("option");
+  loadingOpt.value = "";
+  loadingOpt.textContent = t("barLoading");
+  formSelect.append(loadingOpt);
+  row.append(formSelect);
+  const applyBtn = document.createElement("button");
+  applyBtn.id = "yaf-apply";
+  applyBtn.className = "primary";
+  applyBtn.textContent = t("barApply");
+  row.append(applyBtn);
+  const clearBtn = document.createElement("button");
+  clearBtn.id = "yaf-clear";
+  clearBtn.textContent = t("barClear");
+  row.append(clearBtn);
+  const statusEl = document.createElement("span");
+  statusEl.id = "yaf-status";
+  statusEl.className = "status";
+  row.append(statusEl);
+  bar.append(row);
   document.documentElement.append(bar);
+
+  // ——— Data ———
+  const $bar = (s) => bar.querySelector(s);
+  const FIELDS_KEY = "savedFormFields";
 
   // ——— Layout shift: the page slides down below the bar ———
   const PAGESHIFT_ATTR = "data-yaf-shifted";
@@ -66,13 +94,7 @@ async function initBar() {
   ro.observe(bar);
   window.__yafRO = ro; // global reference: destroy invokable from a different context too
 
-  const $bar = (s) => bar.querySelector(s);
-  const formSelect = $bar("#yaf-form-select");
-  const statusEl = $bar("#yaf-status");
-
-  const FIELDS_KEY = "savedFormFields";
   // SELECTED_KEY ('selectedFormIds') comes from form-selection.mjs (see below)
-
   let forms = [];
   let selectedForm = null;
   // Selector → selected/fields applied last time (used by Clear)
