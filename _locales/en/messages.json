@@ -1,0 +1,189 @@
+{
+  "extName": {
+    "message": "YaFormFiller"
+  },
+  "extDescription": {
+    "message": "Automatically fills form fields on matching pages using saved forms (field type, jQuery-style CSS selector, value)."
+  },
+  "menuSettings": {
+    "message": "Options — Saved forms"
+  },
+
+  "popupToggleLabel": {
+    "message": "⚡ Autofill"
+  },
+  "popupToggleTitle": {
+    "message": "Show the topbar automatically when the page loads"
+  },
+  "popupShowNow": {
+    "message": "→ Topbar now on this page"
+  },
+  "popupOptionsBtn": {
+    "message": "⚙️ Options (saved forms)"
+  },
+  "popupHintNotWebPage": {
+    "message": "Open a web page (http/https) to use YaFormFiller here."
+  },
+  "popupPermissionDenied": {
+    "message": "Permission to access the page was denied"
+  },
+  "popupErrorPrefix": {
+    "message": "Error: $1"
+  },
+
+  "optionsPageTitle": {
+    "message": "YaFormFiller — Settings"
+  },
+  "optionsNewForm": {
+    "message": "+ New form"
+  },
+  "optionsExportData": {
+    "message": "⬇ Export data"
+  },
+  "optionsImportData": {
+    "message": "⬆ Import data"
+  },
+  "optionsEmptyState": {
+    "message": "Select or create a form to edit it."
+  },
+  "optionsFormNameLabel": {
+    "message": "Form name"
+  },
+  "optionsFormNamePlaceholder": {
+    "message": "Form name (e.g. Login example.com)"
+  },
+  "optionsDeleteForm": {
+    "message": "🗑 Delete form"
+  },
+  "optionsDeleteFormConfirm": {
+    "message": "Delete form “$1”?"
+  },
+  "optionsDomainsLabel": {
+    "message": "Valid domains"
+  },
+  "optionsDomainsAriaLabel": {
+    "message": "Valid domains"
+  },
+  "optionsDomainsInputPlaceholder": {
+    "message": "e.g. example.com or example.com/app — Enter or comma to add"
+  },
+  "optionsDomainsHintHtml": {
+    "message": "A valid domain makes the form available on <code>http(s)://*.domain</code> on any port, and on every path unless specified otherwise. Example: <code>example.com</code> matches <code>*.example.com:*/*</code>; <code>example.com/app</code> matches only <code>http(s)://*.example.com/app/*</code>. Duplicate domains are not allowed."
+  },
+  "optionsFieldsHeading": {
+    "message": "Fields"
+  },
+  "optionsAddField": {
+    "message": "+ Add field"
+  },
+  "optionsSaveForm": {
+    "message": "💾 Save form"
+  },
+  "optionsSelectorPlaceholder": {
+    "message": "CSS selector (jQuery-like)"
+  },
+  "optionsValuePlaceholder": {
+    "message": "value"
+  },
+  "optionsRemoveField": {
+    "message": "Remove field"
+  },
+  "optionsRemoveDomain": {
+    "message": "Remove domain"
+  },
+  "optionsFieldsCount": {
+    "message": "$1 fields"
+  },
+  "optionsFormSaved": {
+    "message": "Form saved ✓"
+  },
+
+  "errorNameRequired": {
+    "message": "Enter a name for the form"
+  },
+  "errorDomainsRequired": {
+    "message": "At least 1 valid domain is required to save the form"
+  },
+  "errorFieldsRequired": {
+    "message": "Add at least one field"
+  },
+  "errorSelectorRequired": {
+    "message": "Every field must have a selector set"
+  },
+  "errorDuplicateName": {
+    "message": "A form named “$1” already exists — choose a unique name"
+  },
+
+  "ieExported": {
+    "message": "Data exported ✓"
+  },
+  "ieInvalidJson": {
+    "message": "Invalid file: unreadable JSON."
+  },
+  "ieInvalidFormat": {
+    "message": "Invalid file: unexpected format."
+  },
+  "ieNoKeys": {
+    "message": "Invalid file: no recognized keys."
+  },
+  "ieImportConfirm1": {
+    "message": "The import will replace the current data (this action is destructive).\n\nData present in the file:\n"
+  },
+  "ieImportConfirm2": {
+    "message": "\n\nData version: $1\nContinue?"
+  },
+  "ieKeysRemovedNotice": {
+    "message": "\n\nThese keys will be removed from the current storage:\n$1"
+  },
+  "ieImported": {
+    "message": "Data imported ✓"
+  },
+
+  "barLoading": {
+    "message": "Loading…"
+  },
+  "barApply": {
+    "message": "✔ Apply"
+  },
+  "barClear": {
+    "message": "🧹 Clear"
+  },
+  "barSelectFormFirst": {
+    "message": "Select a form first"
+  },
+  "barFormNoFields": {
+    "message": "The form has no fields"
+  },
+  "barAppliedAll": {
+    "message": "Applied $1 field(s) ✓"
+  },
+  "barAppliedPartial": {
+    "message": "Applied $1/$2 — $3 selector(s) not found"
+  },
+  "barNothingToClear": {
+    "message": "Nothing to clear"
+  },
+  "barCleared": {
+    "message": "Cleared $1 field(s) ✓"
+  },
+  "barClearedMissed": {
+    "message": "Cleared $1 field(s) — $2 not found"
+  },
+  "barNoValidForms": {
+    "message": "No valid form for this domain"
+  },
+  "barNoSavedForms": {
+    "message": "No saved forms — create one in Options"
+  },
+
+  "pickerBadge": {
+    "message": "YaFormFiller: click the form element to select (Esc to cancel)"
+  },
+
+  "fillSelectorNotFound": {
+    "message": "Selector not found"
+  },
+  "fillUnsupportedElement": {
+    "message": "Unsupported element (not input/textarea/select)"
+  }
+}

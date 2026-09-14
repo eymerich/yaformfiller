@@ -1,0 +1,189 @@
+{
+  "extName": {
+    "message": "YaFormFiller"
+  },
+  "extDescription": {
+    "message": "Riempie automaticamente i form delle pagine con form salvati (tipo campo, selettore CSS stile jQuery, valore)."
+  },
+  "menuSettings": {
+    "message": "Impostazioni — Form salvati"
+  },
+
+  "popupToggleLabel": {
+    "message": "⚡ Autocompletamento"
+  },
+  "popupToggleTitle": {
+    "message": "Mostra la topbar automaticamente al load della pagina"
+  },
+  "popupShowNow": {
+    "message": "→ Topbar adesso in questa pagina"
+  },
+  "popupOptionsBtn": {
+    "message": "⚙️ Opzioni (form salvati)"
+  },
+  "popupHintNotWebPage": {
+    "message": "Apri una pagina web (http/https) per usare YaFormFiller qui."
+  },
+  "popupPermissionDenied": {
+    "message": "Permesso di accesso alla pagina negato"
+  },
+  "popupErrorPrefix": {
+    "message": "Errore: $1"
+  },
+
+  "optionsPageTitle": {
+    "message": "YaFormFiller — Impostazioni"
+  },
+  "optionsNewForm": {
+    "message": "+ Nuovo form"
+  },
+  "optionsExportData": {
+    "message": "⬇ Esporta dati"
+  },
+  "optionsImportData": {
+    "message": "⬆ Importa dati"
+  },
+  "optionsEmptyState": {
+    "message": "Seleziona o crea un form per modificarlo."
+  },
+  "optionsFormNameLabel": {
+    "message": "Nome del form"
+  },
+  "optionsFormNamePlaceholder": {
+    "message": "Nome del form (es. Login example.com)"
+  },
+  "optionsDeleteForm": {
+    "message": "🗑 Elimina form"
+  },
+  "optionsDeleteFormConfirm": {
+    "message": "Eliminare il form “$1”?"
+  },
+  "optionsDomainsLabel": {
+    "message": "Domini validi"
+  },
+  "optionsDomainsAriaLabel": {
+    "message": "Domini validi"
+  },
+  "optionsDomainsInputPlaceholder": {
+    "message": "es. example.com oppure example.com/app — Invio o virgola per aggiungere"
+  },
+  "optionsDomainsHintHtml": {
+    "message": "Un dominio valido rende il form disponibile su <code>http(s)://*.dominio</code> con qualsiasi porta, e su ogni percorso se non diversamente indicato. Es.: <code>example.com</code> vale per <code>*.example.com:*/*</code>; <code>example.com/app</code> vale solo per <code>http(s)://*.example.com/app/*</code>. Domini duplicati non sono ammessi."
+  },
+  "optionsFieldsHeading": {
+    "message": "Campi"
+  },
+  "optionsAddField": {
+    "message": "+ Aggiungi campo"
+  },
+  "optionsSaveForm": {
+    "message": "💾 Salva form"
+  },
+  "optionsSelectorPlaceholder": {
+    "message": "selettore CSS (jQuery-like)"
+  },
+  "optionsValuePlaceholder": {
+    "message": "valore"
+  },
+  "optionsRemoveField": {
+    "message": "Rimuovi campo"
+  },
+  "optionsRemoveDomain": {
+    "message": "Rimuovi dominio"
+  },
+  "optionsFieldsCount": {
+    "message": "$1 campi"
+  },
+  "optionsFormSaved": {
+    "message": "Form salvato ✓"
+  },
+
+  "errorNameRequired": {
+    "message": "Inserisci un nome per il form"
+  },
+  "errorDomainsRequired": {
+    "message": "Almeno 1 dominio valido è richiesto per salvare il form"
+  },
+  "errorFieldsRequired": {
+    "message": "Aggiungi almeno un campo"
+  },
+  "errorSelectorRequired": {
+    "message": "Ogni campo deve avere un selettore impostato"
+  },
+  "errorDuplicateName": {
+    "message": "Esiste già un form chiamato “$1” — usa un nome univoco"
+  },
+
+  "ieExported": {
+    "message": "Dati esportati ✓"
+  },
+  "ieInvalidJson": {
+    "message": "File non valido: JSON non leggibile."
+  },
+  "ieInvalidFormat": {
+    "message": "File non valido: formato atteso non corretto."
+  },
+  "ieNoKeys": {
+    "message": "File non valido: nessuna chiave riconosciuta."
+  },
+  "ieImportConfirm1": {
+    "message": "L'import sostituirà i dati attuali (questa azione è distruttiva).\n\nDati presenti nel file:\n"
+  },
+  "ieImportConfirm2": {
+    "message": "\n\nVersione dati: $1\nContinuare?"
+  },
+  "ieKeysRemovedNotice": {
+    "message": "\n\nQueste chiavi verranno eliminate dallo storage attuale:\n$1"
+  },
+  "ieImported": {
+    "message": "Dati importati ✓"
+  },
+
+  "barLoading": {
+    "message": "Caricamento…"
+  },
+  "barApply": {
+    "message": "✔ Applica"
+  },
+  "barClear": {
+    "message": "🧹 Pulisci"
+  },
+  "barSelectFormFirst": {
+    "message": "Seleziona prima un form"
+  },
+  "barFormNoFields": {
+    "message": "Il form non ha campi"
+  },
+  "barAppliedAll": {
+    "message": "Applicati $1 campi ✓"
+  },
+  "barAppliedPartial": {
+    "message": "Applicati $1/$2 — $3 selettori non trovati"
+  },
+  "barNothingToClear": {
+    "message": "Nessun campo da ripulire"
+  },
+  "barCleared": {
+    "message": "Ripuliti $1 campi ✓"
+  },
+  "barClearedMissed": {
+    "message": "Ripuliti $1 campi — $2 non trovati"
+  },
+  "barNoValidForms": {
+    "message": "Nessun form valido per questo dominio"
+  },
+  "barNoSavedForms": {
+    "message": "Nessun form salvato — crea uno nelle Opzioni"
+  },
+
+  "pickerBadge": {
+    "message": "YaFormFiller: clicca l’elemento del form da selezionare (Esc per annullare)"
+  },
+
+  "fillSelectorNotFound": {
+    "message": "Selettore non trovato"
+  },
+  "fillUnsupportedElement": {
+    "message": "Elemento non supportato (non input/textarea/select)"
+  }
+}

@@ -1,0 +1,62 @@
+YaFormFiller
+Copyright (c) 2026 Nicola Petracchi <eymerich@gmail.com>
+
+This product is licensed under the MIT License, the full text of which
+can be found in the LICENSE file distributed with this software.
+
+1. SCOPE OF APPLICATION
+
+The MIT License applies to all source code files, configuration files,
+build scripts, documentation, icons, and any other assets included in
+this repository, with the exception of third-party components which
+remain governed by their own respective licenses.
+
+2. GRANT OF RIGHTS
+
+Any person obtaining a copy of this software and associated
+documentation files is granted, free of charge, the right to:
+
+  * use the Software for any purpose, including commercial use,
+    private use, and use within other products or services;
+  * copy and redistribute the Software in source or compiled form,
+    with or without modifications, and either gratis or for a fee;
+  * modify, adapt, and create derivative works of the Software, and
+    distribute such derivatives under terms of their choosing;
+  * sublicense the Software, whether modified or unmodified, to third
+    parties, provided the original copyright notice and this
+    permission notice, or a substantially equivalent statement, are
+    included in the distribution;
+  * incorporate the Software, in whole or in part, into larger works
+    governed by other licenses, including more restrictive or
+    copyleft licenses.
+
+3. CONDITIONS
+
+The only condition attached to the above rights is that the original
+copyright notice and the permission notice reproduced in the LICENSE
+file must be included in all copies or substantial portions of the
+Software, whether in source code, object code, or documentation.
+
+4. DISCLAIMER OF WARRANTY AND LIABILITY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. The authors and copyright holders assume no
+responsibility whatsoever for the behavior, correctness, security, or
+fitness of the Software, and shall not be liable for any claim,
+damages, or other liability arising from its use, misuse, or
+inability to use, whether in contract, tort, or otherwise.
+
+5. CONTRIBUTIONS
+
+Unless otherwise explicitly stated, any contribution submitted for
+inclusion in this project shall be licensed under the same MIT License
+as the rest of the project, without any additional terms or
+conditions.
+
+6. THIRD-PARTY COMPONENTS
+
+This software may rely on third-party libraries, tools, or assets.
+Such components are not covered by this notice and remain subject to
+the licenses under which they were originally distributed.

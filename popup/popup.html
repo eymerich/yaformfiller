@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img src="../icons/icon-32.png" alt="" width="20" height="20" />
+    <strong>YaFormFiller</strong> <span id="appVersion" class="app-version"></span>
+  </header>
+  <div class="toggle-row">
+    <span data-i18n="popupToggleLabel">⚡ Autofill</span>
+    <label class="switch" data-i18n-title="popupToggleTitle" title="Show the topbar automatically when the page loads">
+      <input type="checkbox" id="autoToggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <button id="nowBtn" class="action" type="button" data-i18n="popupShowNow">→ Topbar now on this page</button>
+  <button id="optionsBtn" class="action" type="button" data-i18n="popupOptionsBtn">⚙️ Options (saved forms)</button>
+  <p id="hint"></p>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

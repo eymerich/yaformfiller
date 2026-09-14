@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title data-i18n="optionsPageTitle">YaFormFiller — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar: list of saved forms -->
+    <aside class="sidebar">
+      <header class="sidebar-head">
+        <h1>YaFormFiller <span id="appVersion" class="app-version"></span></h1>
+        <button id="newFormBtn" class="btn primary" type="button" data-i18n="optionsNewForm">+ New form</button>
+      </header>
+      <ul id="formList" class="form-list"></ul>
+      <footer class="sidebar-footer">
+        <hr class="sidebar-separator" />
+        <div class="import-export">
+          <button id="exportDataBtn" class="btn" type="button" data-i18n="optionsExportData">⬇ Export data</button>
+          <button id="importDataBtn" class="btn" type="button" data-i18n="optionsImportData">⬆ Import data</button>
+          <input id="importDataInput" type="file" accept="application/json,.json" hidden />
+        </div>
+        <div id="importExportStatus" class="ie-status"></div>
+      </footer>
+    </aside>
+
+    <!-- Editor of the selected form -->
+    <main class="editor">
+      <div id="emptyState" class="empty">
+        <p data-i18n="optionsEmptyState">Select or create a form to edit it.</p>
+      </div>
+
+      <div id="formEditor" class="form-editor" hidden>
+          <div class="form-meta">
+            <label class="field-label" for="formName" data-i18n="optionsFormNameLabel">Form name</label>
+            <input id="formName" type="text" data-i18n-placeholder="optionsFormNamePlaceholder"
+              placeholder="Form name (e.g. Login example.com)" />
+            <div class="meta-actions">
+              <button id="deleteFormBtn" class="btn danger" type="button"
+                data-i18n="optionsDeleteForm" data-i18n-title="optionsDeleteForm">🗑 Delete form</button>
+            </div>
+          </div>
+          <div class="form-domains">
+            <label class="field-label" for="formDomainInput" data-i18n="optionsDomainsLabel">Valid domains</label>
+            <div id="formDomains" class="tag-box" role="listbox" data-i18n-aria-label="optionsDomainsAriaLabel"
+              aria-label="Valid domains">
+              <!-- chips added dynamically -->
+              <input id="formDomainInput" type="text" data-i18n-placeholder="optionsDomainsInputPlaceholder"
+                placeholder="e.g. example.com or example.com/app — Enter or comma to add" />
+            </div>
+            <p class="hint-domains" data-i18n-html="optionsDomainsHintHtml"></p>
+          </div>
+
+        <h2 data-i18n="optionsFieldsHeading">Fields</h2>
+        <div id="fieldList"></div>
+        <button id="addFieldBtn" class="btn" type="button" data-i18n="optionsAddField">+ Add field</button>
+
+        <div class="save-bar">
+          <button id="saveFormBtn" class="btn primary big" type="button" data-i18n="optionsSaveForm">💾 Save form</button>
+          <span id="saveStatus" class="save-status"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <template id="fieldTpl"></template>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "version": "1.0.0",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
+  "author": "Nicola Petracchi <eymerich@gmail.com>",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{910a0206-1047-4d9c-a912-438ede2e976e}",
+      "strict_min_version": "128.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+  "action": {
+    "default_title": "__MSG_extName__",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  }
+}
