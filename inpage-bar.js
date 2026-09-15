@@ -167,7 +167,11 @@ async function initBar() {
 
   // Page URI as persistence key: origin + path (no query/hash,
   // which vary per list/detail page). E.g. https://www.example.com/users
-  const pageUri = pageUriOf(window.location);
+  // Mutated by refreshForms() on SPA navigation (pushState/replaceState/popstate)
+  // so manual selections after a navigation are keyed to the new pathname.
+  let pageUri = pageUriOf(window.location);
+  // Change marker (origin+pathname) to serialize navigation-triggered refreshes.
+  let lastPageUri = pageUri;
 
   // Sets the selected form and persists the choice per domain (skipSave = true to avoid
   // recursion when the form is already the saved choice: only set it),
@@ -213,6 +217,68 @@ async function initBar() {
     flash(missed ? t("barClearedMissed", [done, missed]) : t("barCleared", [done]), !!missed && !done);
   });
 
+  // Rebuilds the select options from an already-sorted valid-forms list.
+  // Returns true when at least one form is usable.
+  function populateOptions(validForms) {
+    formSelect.innerHTML = "";
+    if (!validForms.length) {
+      const o = document.createElement("option");
+      o.value = "";
+      o.textContent = forms.length ? t("barNoValidForms") : t("barNoSavedForms");
+      formSelect.append(o);
+      return false;
+    }
+    for (const f of validForms) {
+      const o = document.createElement("option");
+      o.value = f.id;
+      o.textContent = `${f.name} · ${t("optionsFieldsCount", [f.fields.length])}`;
+      formSelect.append(o);
+    }
+    return true;
+  }
+
+  async function setInitialFromStorage(validForms, skipSave) {
+    try {
+      const { [SELECTED_KEY]: map } = await browser.storage.local.get(SELECTED_KEY);
+      const { form: initial, changed } = selectInitialForm({ validForms, savedMap: map, pageUri });
+      // Boot (skipSave=!changed):
+      //   changed=false → form found from storage: just set it (no re-save, no loop)
+      //   changed=true  → choice missing/invalid: set and save
+      // Refresh (navigation): ALWAYS skipSave=true → the automated re-selection is
+      // non-user activity and must never write to storage.local.
+      setSelected(initial, skipSave || !changed);
+    } catch {
+      setSelected(sortFormsAlphabetically(validForms)[0], skipSave);
+    }
+  }
+
+  // ——— SPA navigation refresh (debounced; wired at the end of the file) ———
+  // In-place refresh of the bar after a pushState/replaceState/popstate change of
+  // origin+pathname. Reuses the boot-time logic (fresh load() → formsForUrl →
+  // alphabetical select → selectInitialForm → setSelected) but ALWAYS ends in
+  // setSelected(skipSave=true): automated re-selection never writes to storage.
+  // pageUriOf(window.location) is recomputed here at call time (never the boot const).
+  // Idempotent: guarded by lastPageUri so hash-only/same-path navigations skip the
+  // storage read and the DOM update entirely.
+  async function refreshForms() {
+    const newPageUri = pageUriOf(window.location);
+    // Decision shared with the tests (YAFSpaNav): same/null URI → no work.
+    if (!globalThis.YAFSpaNav.pageUriChanged(lastPageUri, newPageUri)) return false;
+    lastPageUri = newPageUri;
+    const targetUri = newPageUri; // re-checked after awaits: a newer refresh wins
+    pageUri = newPageUri;
+    forms = await load();
+    if (pageUriOf(window.location) !== targetUri) return false;
+    const validForms = formsForUrl(forms, window.location)
+      .toSorted(compareFormNames);
+    if (!populateOptions(validForms)) setSelected(null, true);
+    else await setInitialFromStorage(validForms, true);
+    return true;
+  }
+  // Exposed for the debounced navigation listener at the end of the file; cleared by
+  // __yafHide() so a hidden bar is never refreshed.
+  window.__yafRefreshForms = refreshForms;
+
   // ——— Boot ———
   forms = await load();
   // Shared domains: YAFDomains from domains.js (injected before inpage-bar.js by the background)
@@ -221,30 +287,8 @@ async function initBar() {
   // List of forms in alphabetical order (by name, case-insensitive)
   const validForms = formsForUrl(forms, window.location)
     .toSorted(compareFormNames);
-  formSelect.innerHTML = "";
-  if (!validForms.length) {
-    const o = document.createElement("option");
-    o.value = "";
-    o.textContent = forms.length ? t("barNoValidForms") : t("barNoSavedForms");
-    formSelect.append(o);
-    setSelected(null, true);
-  } else {
-    for (const f of validForms) {
-      const o = document.createElement("option");
-      o.value = f.id;
-      o.textContent = `${f.name} · ${t("optionsFieldsCount", [f.fields.length])}`;
-      formSelect.append(o);
-    }
-    try {
-      const { [SELECTED_KEY]: map } = await browser.storage.local.get(SELECTED_KEY);
-      const { form: initial, changed } = selectInitialForm({ validForms, savedMap: map, pageUri });
-      // changed=false → form found from storage: just set it (no re-save, no loop)
-      // changed=true  → choice missing/invalid: set and save
-      setSelected(initial, !changed);
-    } catch {
-      setSelected(sortFormsAlphabetically(validForms)[0], false);
-    }
-  }
+  if (populateOptions(validForms)) await setInitialFromStorage(validForms, false);
+  else setSelected(null, true);
 }
 
 // ——— DOM-driven operations (independent of the injection context) ———
@@ -256,6 +300,9 @@ window.__yafHide = function () {
   if (!document.getElementById("yaf-bar")) return Promise.resolve({ ok: true, changed: false });
   try { window.__yafRO?.disconnect(); } catch (e) {}
   delete window.__yafRO;
+  // A hidden bar must not be refreshed by SPA navigation.
+  window.__yafCancelSpaRefresh?.();
+  delete window.__yafRefreshForms;
   const htmlEl = document.documentElement;
   if (htmlEl.hasAttribute("data-yaf-shifted")) {
     htmlEl.style.marginTop = "";
@@ -274,3 +321,47 @@ window.__yafApply = function (mode) {
 if (window.__yafMode === "hide") void window.__yafApply("hide");
 else if (window.__yafMode === "show") void window.__yafApply("show");
 window.__yafMode = null;
+
+// ——— SPA navigation detection (classic-script compatible: no import(), no sendMessage) ———
+// Logic shared with the tests: YAFSpaNav from spa-navigation.mjs (injected before this
+// file by the background, same dual-load pattern as domains.js/form-selection.mjs).
+// Debounced (REFRESH_DEBOUNCE_MS): rapid successive navigations (e.g. several pushState
+// calls in a row) coalesce into one refresh per tick; the refresh itself is guarded by
+// the origin+pathname change marker, so hash-only or same-path navigations cause zero
+// storage reads / DOM churn.
+window.__yafCancelSpaRefresh = function () {
+  if (window.__yafSpaTimer) { clearTimeout(window.__yafSpaTimer); window.__yafSpaTimer = null; }
+};
+function scheduleSpaRefresh() {
+  window.__yafCancelSpaRefresh();
+  window.__yafSpaTimer = setTimeout(() => {
+    window.__yafSpaTimer = null;
+    void window.__yafRefreshForms?.();
+  }, globalThis.YAFSpaNav.REFRESH_DEBOUNCE_MS);
+}
+// IMPORTANT: executeScript files run in an ISOLATED world. A wrapper installed there on
+// history.pushState/replaceState never sees calls made by the PAGE (a different realm),
+// so pushState-driven SPA navigation would stay silent. The patch must live in the page
+// world: we inject the tiny classic script from YAFSpaNav.pageWorldPatchSource as an
+// inline <script>; it wraps pushState/replaceState and, on any SPA navigation
+// (pushState/replaceState/popstate/hashchange), dispatches the CustomEvent "yaf-spa-nav"
+// which we listen for here. DOM events are visible from the isolated world.
+try {
+  const s = document.createElement("script");
+  s.textContent = globalThis.YAFSpaNav.pageWorldPatchSource();
+  document.documentElement.append(s);
+  s.remove(); // inline scripts keep working after being detached
+} catch (e) {}
+// Re-listen on every injection (the listener itself is idempotent; the event is ignored
+// when the bar is closed and the refresh marker skips unchanged URLs).
+window.addEventListener(globalThis.YAFSpaNav.NAV_EVENT, scheduleSpaRefresh);
+// Safety net for strict-CSP pages where the inline page-world script above is blocked
+// (no error is thrown, it just never runs): cheap poll comparing origin+pathname.
+// refreshForms() short-circuits on an unchanged URL without any storage read or DOM work.
+if (!window.__yafSpaPoll) {
+  window.__yafSpaPoll = setInterval(() => {
+    if (!window.__yafRefreshForms && !document.getElementById("yaf-bar")) return;
+    void window.__yafRefreshForms?.();
+  }, globalThis.YAFSpaNav.POLL_FALLBACK_MS);
+}
+try { window.addEventListener("pagehide", () => window.__yafCancelSpaRefresh?.(), { once: true }); } catch (e) {}

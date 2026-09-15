@@ -56,9 +56,9 @@ async function injectBar(tabId, mode = "show") {
   try {
     await browser.scripting.executeScript({
       target: { tabId },
-      // domains.js and form-selection.mjs first: globals used by inpage-bar.js;
+      // domains.js, form-selection.mjs, spa-navigation.mjs first: globals used by inpage-bar.js;
       // control file next: drives bar open/close
-      files: ["/domains.js", "/form-selection.mjs", BAR_CTL[mode] ?? BAR_CTL.show, "/inpage-bar.js"],
+      files: ["/domains.js", "/form-selection.mjs", "/spa-navigation.mjs", BAR_CTL[mode] ?? BAR_CTL.show, "/inpage-bar.js"],
     });
     return true;
   } catch {
