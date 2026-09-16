@@ -10,7 +10,8 @@ appVersionEl.textContent = "v" + browser.runtime.getManifest().version;
 applyI18n();
 
 const get = (tabId) => browser.runtime.sendMessage({ type: "yaf-auto-get", tabId });
-const set = (tabId, enabled) => browser.runtime.sendMessage({ type: "yaf-auto-set", tabId, enabled });
+const set = (tabId, enabled, withSubmit) =>
+  browser.runtime.sendMessage({ type: "yaf-auto-set", tabId, enabled, with_submit: !!withSubmit });
 const inject = (tabId) => browser.runtime.sendMessage({ type: "yaf-auto-inject", tabId });
 
 let tabId = null;
@@ -33,7 +34,8 @@ async function init() {
 
   tabId = tab.id;
   tabOrigin = new URL(tab.url).origin + "/*";
-  const state = await get(tabId).catch(() => ({ enabled: false }));
+  let state = { enabled: false, with_submit: false };
+  try { state = await get(tabId); } catch { /* defaults above */ }
   autoToggle.checked = !!state?.enabled;
 
   autoToggle.addEventListener("change", async () => {
@@ -44,7 +46,10 @@ async function init() {
         const granted = await browser.permissions.request({ origins: [tabOrigin] });
         if (granted !== true) throw new Error(t("popupPermissionDenied"));
       }
-      await set(tabId, enabled);
+      // with_submit: an already-stored origin keeps its stored value (enforced
+      // by the background); a brand-new origin is stored with with_submit: false.
+      await set(tabId, enabled, state?.with_submit ?? false);
+      state = { ...state, enabled };
     } catch (e) {
       hint.textContent = t("popupErrorPrefix", [e.message ?? String(e)]);
       autoToggle.checked = !enabled;

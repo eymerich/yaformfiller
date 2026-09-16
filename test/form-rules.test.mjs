@@ -112,3 +112,26 @@ test("isValidDomainPattern: edge cases", () => {
   assert.equal(isValidDomainPattern("https://example.com/app"), true);
   assert.equal(isValidDomainPattern("a b"), false);
 });
+
+// ——— "submit" field type: at most one per form ———
+test("submit field type: a single submit field is accepted", () => {
+  const r = validateForm(validForm({
+    fields: [
+      { type: "text", selector: "#username", value: "admin" },
+      { type: "submit", selector: "button[type=submit]", value: "" },
+    ],
+  }), []);
+  assert.equal(r.ok, true);
+});
+
+test("submit field type: two submit fields → errorSubmitMultiple", () => {
+  const r = validateForm(validForm({
+    fields: [
+      { type: "text", selector: "#username", value: "admin" },
+      { type: "submit", selector: "#s1", value: "" },
+      { type: "submit", selector: "#s2", value: "ignored" },
+    ],
+  }), []);
+  assert.equal(r.ok, false);
+  assert.match(r.message, /errorSubmitMultiple/);
+});

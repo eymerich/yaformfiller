@@ -150,7 +150,7 @@ function fieldCard(field, index) {
 
   const typeSel = document.createElement("select");
   typeSel.className = "f-type";
-  typeSel.innerHTML = `<option value="text">text</option><option value="password">password</option>`;
+  typeSel.innerHTML = `<option value="text">text</option><option value="password">password</option><option value="submit">submit</option>`;
   typeSel.value = field.type;
 
   const selInput = document.createElement("input");
@@ -174,8 +174,11 @@ function fieldCard(field, index) {
   typeSel.addEventListener("input", (e) => {
     field.type = e.target.value;
     valInput.type = field.type === "password" ? "password" : "text";
+    // "submit" is selector-only: the value is meaningless and ignored
+    valInput.disabled = field.type === "submit";
   });
   selInput.addEventListener("input", (e) => (field.selector = e.target.value));
+  valInput.disabled = field.type === "submit";
   valInput.addEventListener("input", (e) => (field.value = e.target.value));
   rmBtn.addEventListener("click", () => {
     editing.fields.splice(index, 1);

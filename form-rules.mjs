@@ -51,6 +51,11 @@ export function validateForm(candidate, existingForms = [], editingId = null) {
     return { ok: false, message: "errorSelectorRequired" };
   }
 
+  // "submit" is a selector-only field type (value ignored); at most one per form.
+  if (fields.filter((f) => String(f?.type ?? "") === "submit").length > 1) {
+    return { ok: false, message: "errorSubmitMultiple" };
+  }
+
   const dup = existingForms.some(
     (f) => f.id !== editingId && String(f.name ?? "").trim().toLowerCase() === name.toLowerCase()
   );

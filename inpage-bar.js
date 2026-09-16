@@ -31,6 +31,8 @@ async function initBar() {
     #yaf-bar button:hover { border-color: #ff6600; color: #ff8a3d; }
     #yaf-bar button.primary { background: #ff6600; border-color: #ff6600; color: #fff; }
     #yaf-bar button.primary:hover { background: #ff8a3d; color: #fff; }
+    #yaf-bar label[for="yaf-submit"] { white-space: nowrap; cursor: pointer; color: #c7cdd8; user-select: none; margin-right: 4px; }
+    #yaf-bar label[for="yaf-submit"], #yaf-bar input[type="checkbox"] { accent-color: #ff6600; }
     #yaf-bar .status { color: #4caf7d; font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #yaf-bar .status.err { color: #d9534f; }
   `;
@@ -65,6 +67,17 @@ async function initBar() {
   applyBtn.className = "primary";
   applyBtn.textContent = t("barApply");
   row.append(applyBtn);
+  // "With submit" checkbox: when checked, Apply clicks the submit-type field after the fill.
+  // Selectable/deselectable for the whole lifetime of the (visible) topbar; every change
+  // is persisted into the autoOrigins entry of this page's origin (if present).
+  const submitChk = document.createElement("input");
+  submitChk.id = "yaf-submit";
+  submitChk.type = "checkbox";
+  const submitLbl = document.createElement("label");
+  submitLbl.id = "yaf-submit-label";
+  submitLbl.htmlFor = "yaf-submit";
+  submitLbl.textContent = t("withSubmit");
+  row.append(submitChk, submitLbl);
   const clearBtn = document.createElement("button");
   clearBtn.id = "yaf-clear";
   clearBtn.textContent = t("barClear");
@@ -79,6 +92,7 @@ async function initBar() {
   // ——— Data ———
   const $bar = (s) => bar.querySelector(s);
   const FIELDS_KEY = "savedFormFields";
+  const AUTO_STORE_KEY = "autoOrigins"; // [{ url: <origin URL>, with_submit: bool }] — see background.js
 
   // ——— Layout shift: the page slides down below the bar ———
   const PAGESHIFT_ATTR = "data-yaf-shifted";
@@ -111,6 +125,7 @@ async function initBar() {
   function fillInPage(fields) {
     const results = [];
     for (const f of fields) {
+      if (f.type === "submit") continue; // selector-only, not fillable
       try {
         const el = document.querySelector(f.selector);
         if (!el) { results.push({ selector: f.selector, ok: false, error: t("fillSelectorNotFound") }); continue; }
@@ -178,6 +193,7 @@ async function initBar() {
   // otherwise false (first form in alphabetical order or user selection).
   function setSelected(form, skipSave) {
     selectedForm = form ?? null;
+    setApplyEnabled(!!selectedForm);
     if (formSelect.value !== (form?.id ?? "")) formSelect.value = form?.id ?? "";
     if (!skipSave && pageUri) {
       void (async () => {
@@ -187,10 +203,40 @@ async function initBar() {
         map[pageUri] = form?.id ?? "";
         if (!form) delete map[pageUri];
         await browser.storage.local.set({ [SELECTED_KEY]: map });
+        // The with-submit state is saved together with the origin whenever the topbar
+        // state is persisted (the deselect path above is part of it).
+        await persistWithSubmit();
       })();
     }
     return selectedForm;
   }
+
+  // Persists the checkbox state into the autoOrigins entry of this page's origin.
+  // Never writes when the page is not visible (bar removed) or when the origin has
+  // no autoOrigins entry (the entry is only managed by the popup's toggle).
+  async function persistWithSubmit() {
+    if (!bar.isConnected) return; // page/bar not visible
+    try {
+      const d = await browser.storage.local.get(AUTO_STORE_KEY);
+      const entries = d[AUTO_STORE_KEY];
+      if (!Array.isArray(entries)) return;
+      const i = entries.findIndex((e) => e && e.url === window.location.origin);
+      if (i === -1) return; // origin not in autoOrigins: nothing to save
+      entries[i] = { ...entries[i], with_submit: !!submitChk.checked };
+      await browser.storage.local.set({ [AUTO_STORE_KEY]: entries });
+    } catch {
+      // storage unavailable: leave the persisted state untouched
+    }
+  }
+
+  // Every user toggling of the checkbox updates the "with_submit" of this origin's entry.
+  submitChk.addEventListener("change", () => void persistWithSubmit());
+
+  // ——— Apply button: enabled only when a form is selected ———
+  function setApplyEnabled(on) {
+    applyBtn.disabled = !on;
+  }
+  setApplyEnabled(false);
 
   // ——— Wiring ———
   formSelect.addEventListener("change", () => {
@@ -207,11 +253,26 @@ async function initBar() {
     if (!results.length) return flash(t("barFormNoFields"), true);
     if (!bad) flash(t("barAppliedAll", [ok]));
     else flash(t("barAppliedPartial", [ok, results.length, bad]), true);
+    // With submit: after a successful fill click the submit-type field, if defined
+    if (submitChk.checked) {
+      const submitField = (selectedForm.fields ?? []).find((f) => f.type === "submit");
+      if (submitField?.selector) {
+        try {
+          const submitEl = document.querySelector(submitField.selector);
+          submitEl?.click();
+        } catch {
+          // invalid selector: no click
+        }
+      }
+    }
   });
 
   $bar("#yaf-clear").addEventListener("click", () => {
     // Clears the applied fields; if none were ever applied, uses the selected form's fields
-    const selectors = appliedSelectors.length ? appliedSelectors : (selectedForm?.fields ?? []).map((f) => f.selector).filter(Boolean);
+    const fillableFields = (selectedForm?.fields ?? []).filter((f) => f.type !== "submit");
+    const selectors = appliedSelectors.length || !fillableFields.length
+      ? appliedSelectors
+      : fillableFields.map((f) => f.selector).filter(Boolean);
     if (!selectors.length) return flash(t("barNothingToClear"), true);
     const { done, missed } = clearInPage(selectors);
     flash(missed ? t("barClearedMissed", [done, missed]) : t("barCleared", [done]), !!missed && !done);
@@ -289,6 +350,19 @@ async function initBar() {
     .toSorted(compareFormNames);
   if (populateOptions(validForms)) await setInitialFromStorage(validForms, false);
   else setSelected(null, true);
+
+  // Restore the with-submit checkbox from the autoOrigins entry of this origin (if any)
+  void (async () => {
+    try {
+      const d = await browser.storage.local.get(AUTO_STORE_KEY);
+      const entries = d[AUTO_STORE_KEY];
+      if (!Array.isArray(entries)) return;
+      const entry = entries.find((e) => e && e.url === window.location.origin);
+      if (entry) submitChk.checked = !!entry.with_submit;
+    } catch {
+      // storage unavailable: keep the default (unchecked)
+    }
+  })();
 }
 
 // ——— DOM-driven operations (independent of the injection context) ———

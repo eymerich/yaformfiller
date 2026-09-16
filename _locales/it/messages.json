@@ -185,5 +185,11 @@
   },
   "fillUnsupportedElement": {
     "message": "Elemento non supportato (non input/textarea/select)"
+  },
+  "withSubmit": {
+    "message": "Con invio"
+  },
+  "errorSubmitMultiple": {
+    "message": "\u00c8 ammesso un solo campo di tipo 'submit' per modulo"
   }
 }

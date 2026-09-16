@@ -1,7 +1,7 @@
 // YaFormFiller — background (event page, MV3)
 // domains.js (classic script) exposes globalThis.YAFDomains; importing it as a module keeps that working.
 import "./domains.js";
-import { getForms } from "./storage.mjs";
+import { normalizeAutoOrigins, findEntry, setOriginEnabled } from "./auto-origins.mjs";
 
 const MENU_SETTINGS_ID = "yaformfiller-settings";
 const OPTIONS_URL = browser.runtime.getURL("options/options.html");
@@ -30,12 +30,13 @@ async function openSettings() {
 }
 
 // ——— Origins with autofill enabled (persisted) ———
+// Format: [{ url: <origin URL>, with_submit: true|false }] (see auto-origins.mjs).
 async function getAutoOrigins() {
   const d = await browser.storage.local.get(AUTO_KEY);
-  return new Set(d[AUTO_KEY] ?? []);
+  return normalizeAutoOrigins(d[AUTO_KEY]);
 }
-async function saveAutoOrigins(set) {
-  await browser.storage.local.set({ [AUTO_KEY]: [...set] });
+async function saveAutoOrigins(list) {
+  await browser.storage.local.set({ [AUTO_KEY]: list });
 }
 
 function originOf(url) {
@@ -91,16 +92,15 @@ browser.runtime.onMessage.addListener(async (msg) => {
 
   switch (msg.type) {
     case "yaf-auto-get": {
-      if (!origin) return { enabled: false };
-      const set = await getAutoOrigins();
-      return { enabled: set.has(origin) };
+      if (!origin) return { enabled: false, with_submit: false };
+      const entry = findEntry(await getAutoOrigins(), origin);
+      return { enabled: !!entry, with_submit: !!entry?.with_submit };
     }
     case "yaf-auto-set": {
-      if (!origin) return { enabled: false };
-      const set = await getAutoOrigins();
-      if (msg.enabled) set.add(origin);
-      else set.delete(origin);
-      await saveAutoOrigins(set);
+      if (!origin) return { enabled: false, with_submit: false };
+      const list = await getAutoOrigins();
+      const next = setOriginEnabled(list, origin, !!msg.enabled, !!msg.with_submit);
+      await saveAutoOrigins(next);
       // explicit show when enabling (bar appears with the business-rule selection);
       // explicit hide when disabling (the bar goes away anyway, no toggle)
       await applyToOrigin(origin, !!msg.enabled, msg.tabId);
@@ -120,24 +120,17 @@ function isWebUrl(url) {
 }
 
 // Auto-injection of the topbar at full page load:
-// - origins registered in autoOrigins (popup toggle), or
-// - pages matching the domains of at least one saved form
-//   (domains within the same form evaluated in OR — see domains.js).
+// only pages whose origin is registered in autoOrigins (popup toggle), or explicit
+// injection via "yaf-auto-inject" (popup "Topbar now"). Pages merely matching the
+// domains of a saved form are NOT auto-injected: the bar is opened by the toggle or
+// manually with the popup's "now" button.
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== "complete" || !isWebUrl(tab?.url)) return;
   const origins = await getAutoOrigins();
-  if (origins.has(originOf(tab.url))) {
+  if (findEntry(origins, originOf(tab.url))) {
     await injectBar(tabId, "show");
-    return;
   }
-  try {
-    const forms = await getForms();
-    if (YAFDomains.anyFormMatchesUrl(forms, tab.url)) {
-      await injectBar(tabId, "show");
-    }
-  } catch {
-    // storage unavailable: no domain-based auto-injection
-  }
+  // otherwise: no auto-injection (the user can open it with the popup's "now" button)
 }, { properties: ["status"] });
 
 // Context menu click on the extension icon → settings

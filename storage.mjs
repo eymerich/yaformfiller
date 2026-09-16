@@ -2,8 +2,9 @@
 const STORAGE_KEY = "savedFormFields";
 
 /**
- * Form: { id, name, domains: [string], fields: [ { type: "text"|"password", selector: "...", value: "..." } ] }
+ * Form: { id, name, domains: [string], fields: [ { type: "text"|"password"|"submit", selector: "...", value: "..." } ] }
  * Domains are match patterns (see domains.js); evaluated in OR within a single form.
+ * A "submit" field is selector-only (value ignored); at most one per form (form-rules.mjs).
  */
 
 export async function getForms() {

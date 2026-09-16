@@ -185,5 +185,11 @@
   },
   "fillUnsupportedElement": {
     "message": "Unsupported element (not input/textarea/select)"
+  },
+  "withSubmit": {
+    "message": "With submit"
+  },
+  "errorSubmitMultiple": {
+    "message": "Only one submit field per form is allowed"
   }
 }
